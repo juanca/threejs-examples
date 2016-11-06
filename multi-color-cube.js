@@ -28,14 +28,15 @@ store = REDUX.createStore(function storeReducer(state, action) {
   switch(action.type) {
     case '@@redux/INIT':
       return {
+        camera: {
+          position: { x: 0, y: 150, z: 500, },
+          rotation: { x: 0, y: 0, z: 0, },
+        },
         cube: {
           position: { x: 0, y: 150, z: 0, },
           rotation: { x: 0, y: 0, z: 0, },
         },
-        camera: {
-          position: { x: 0, y: 150, z: 500, },
-          rotation: { x: 0, y: 0, z: 0, },
-        }
+        keys: {},
       };
     case 'TRANSLATE_CUBE':
       return Object.assign({}, state, {
@@ -65,6 +66,14 @@ store = REDUX.createStore(function storeReducer(state, action) {
           rotation: rotate(state.camera.rotation, action),
         }
       });
+    case 'KEY_DOWN':
+      return Object.assign({}, state, {
+        keys: Object.assign({}, state.keys, { [action.payload]: true, }),
+      });
+    case 'KEY_UP':
+      var keys = Object.assign({}, state.keys);
+      delete keys[action.payload];
+      return Object.assign({}, state, { keys: keys });
     default:
       return state;
   }
@@ -146,12 +155,6 @@ renderer.setSize(window.innerWidth, window.innerHeight);
   cube.rotation.y = sceneState.cube.rotation.y;
   cube.rotation.z = sceneState.cube.rotation.z;
 
-  store.dispatch({ type: 'ROTATE_CUBE', payload: {
-    x: 0.01,
-    y: 0.02,
-    z: 0,
-  }})
-
 	renderer.render(scene, camera);
 }())
 
@@ -160,21 +163,19 @@ renderer.setSize(window.innerWidth, window.innerHeight);
  * Document Event Handlers
  */
 
-var keysPressed = {};
-
 function onDocumentKeyDown(event) {
   var key = event.key;
 
-  if (keysPressed[key]) return;
+  if (store.getState().keys[key]) return;
 
   function onDocumentKeyUp(event) {
     if (event.key !== key) return;
 
-    delete keysPressed[key];
+    store.dispatch({ type: 'KEY_UP', payload: key })
     document.removeEventListener('keyup', onDocumentKeyUp, false)
   }
 
-  keysPressed[event.key] = true;
+  store.dispatch({ type: 'KEY_DOWN', payload: key })
   document.addEventListener('keyup', onDocumentKeyUp, false);
 }
 
