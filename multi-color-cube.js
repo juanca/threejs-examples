@@ -5,10 +5,20 @@ var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHei
 camera.position.z = 5;
 scene.add(camera);
 
-var geometry = new THREE.BoxGeometry( 2, 1, 1 );
-var material = new THREE.MeshBasicMaterial( { wireframe: true, color: 0x00ff00 } );
-var cube = new THREE.Mesh( geometry, material );
-scene.add( cube );
+var geometry = new THREE.BoxGeometry(1, 1, 1);
+
+for (var i = 0; i < geometry.faces.length; i += 1) {
+  var hex = Math.random() * 0xffffff;
+  geometry.faces[i].color.setHex(hex);
+}
+
+var material = new THREE.MeshBasicMaterial({
+  vertexColors: THREE.FaceColors,
+  overdraw: 0.5,
+});
+
+cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
