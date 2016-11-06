@@ -39,7 +39,30 @@ cube = new THREE.Mesh(geometry, material);
 cube.position.y = 150;
 scene.add(cube);
 
+
+/*
+ * Plane
+ */
+
+var geometry = new THREE.PlaneBufferGeometry(200, 200);
+geometry.rotateX(-1 * (Math.PI / 2));
+
+var material = new THREE.MeshBasicMaterial({
+  color: 0xe0e0e0,
+  overdraw: 0.5,
+});
+
+plane = new THREE.Mesh(geometry, material);
+scene.add(plane);
+
+
+/*
+ * Renderer
+ */
+
 var renderer = new THREE.WebGLRenderer();
+// renderer.setClearColor(0xf0f0f0);
+// renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 
