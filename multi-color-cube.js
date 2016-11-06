@@ -157,9 +157,34 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 
 
 /*
+ * Document Event Handlers
+ */
+
+var keysPressed = {};
+
+function onDocumentKeyDown(event) {
+  var key = event.key;
+
+  if (keysPressed[key]) return;
+
+  function onDocumentKeyUp(event) {
+    if (event.key !== key) return;
+
+    delete keysPressed[key];
+    document.removeEventListener('keyup', onDocumentKeyUp, false)
+  }
+
+  keysPressed[event.key] = true;
+  document.addEventListener('keyup', onDocumentKeyUp, false);
+}
+
+
+/*
  * Document hook
  */
 
 document.addEventListener('DOMContentLoaded', function(event) {
   document.body.appendChild(renderer.domElement);
+
+  document.addEventListener('keydown', onDocumentKeyDown, false);
 });
