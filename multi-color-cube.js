@@ -1,4 +1,5 @@
 var THREE = require('three');
+var REDUX = require('redux');
 
 
 /*
@@ -7,15 +8,74 @@ var THREE = require('three');
 
 var scene = new THREE.Scene();
 
+function translate(position, action) {
+  return {
+    x: position.x + action.payload.x,
+    y: position.y + action.payload.y,
+    z: position.z + action.payload.z,
+  };
+}
+
+function rotate(rotation, action) {
+  return {
+    x: rotation.x + action.payload.x,
+    y: rotation.y + action.payload.y,
+    z: rotation.z + action.payload.z,
+  };
+}
+
+store = REDUX.createStore(function storeReducer(state, action) {
+  switch(action.type) {
+    case '@@redux/INIT':
+      return {
+        cube: {
+          position: { x: 0, y: 150, z: 0, },
+          rotation: { x: 0, y: 0, z: 0, },
+        },
+        camera: {
+          position: { x: 0, y: 150, z: 500, },
+          rotation: { x: 0, y: 0, z: 0, },
+        }
+      };
+    case 'TRANSLATE_CUBE':
+      return Object.assign({}, state, {
+        cube: {
+          position: translate(state.cube.position, action),
+          rotation: state.cube.rotation,
+        }
+      });
+    case 'ROTATE_CUBE':
+      return Object.assign({}, state, {
+        cube: {
+          position: state.cube.position,
+          rotation: rotate(state.cube.rotation, action),
+        }
+      });
+    case 'TRANSLATE_CAMERA':
+      return Object.assign({}, state, {
+        cube: {
+          position: translate(state.camera.position, action),
+          rotation: state.camera.rotation,
+        }
+      });
+    case 'ROTATE_CAMERA':
+      return Object.assign({}, state, {
+        cube: {
+          position: state.camera.position,
+          rotation: rotate(state.camera.rotation, action),
+        }
+      });
+    default:
+      return state;
+  }
+});
 
 /*
  * Camera
  */
 
 var displayRatio = window.innerWidth / window.innerHeight;
-var camera = new THREE.PerspectiveCamera(75, displayRatio, 1, 1000);
-camera.position.y = 150;
-camera.position.z = 500;
+camera = new THREE.PerspectiveCamera(75, displayRatio, 1, 1000);
 scene.add(camera);
 
 
@@ -36,7 +96,6 @@ var material = new THREE.MeshBasicMaterial({
 });
 
 cube = new THREE.Mesh(geometry, material);
-cube.position.y = 150;
 scene.add(cube);
 
 
@@ -61,8 +120,6 @@ scene.add(plane);
  */
 
 var renderer = new THREE.WebGLRenderer();
-// renderer.setClearColor(0xf0f0f0);
-// renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 
@@ -73,9 +130,27 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 (function render() {
 	requestAnimationFrame(render);
 
-  cube.translateX(0);
-  cube.rotateX(0.01);
-  cube.rotateY(0.02);
+  var sceneState = store.getState();
+
+  camera.position.x = sceneState.camera.position.x;
+  camera.position.y = sceneState.camera.position.y;
+  camera.position.z = sceneState.camera.position.z;
+  camera.rotation.x = sceneState.camera.rotation.x;
+  camera.rotation.y = sceneState.camera.rotation.y;
+  camera.rotation.z = sceneState.camera.rotation.z;
+
+  cube.position.x = sceneState.cube.position.x;
+  cube.position.y = sceneState.cube.position.y;
+  cube.position.z = sceneState.cube.position.z;
+  cube.rotation.x = sceneState.cube.rotation.x;
+  cube.rotation.y = sceneState.cube.rotation.y;
+  cube.rotation.z = sceneState.cube.rotation.z;
+
+  store.dispatch({ type: 'ROTATE_CUBE', payload: {
+    x: 0.01,
+    y: 0.02,
+    z: 0,
+  }})
 
 	renderer.render(scene, camera);
 }())
