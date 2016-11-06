@@ -10,6 +10,7 @@
   "author": "Juan Carlos Medina",
   "license": "MIT",
   "dependencies": {
+    "redux": "^3.6.0",
     "three": "^0.82.1"
   },
   "devDependencies": {
