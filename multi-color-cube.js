@@ -1,22 +1,9 @@
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset=utf-8>
-		<title>My first Three.js app</title>
-		<style>
-			body { margin: 0; }
-			canvas { width: 100%; height: 100% }
-		</style>
-    <script src='node_modules/three/build/three.js'></script>
-	</head>
-	<body>
-		<script>
+var THREE = require('three');
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
-document.body.appendChild( renderer.domElement );
 
 var geometry = new THREE.BoxGeometry( 2, 1, 1 );
 var material = new THREE.MeshBasicMaterial( { wireframe: true, color: 0x00ff00 } );
@@ -37,6 +24,7 @@ camera.position.z = 5;
 
 	renderer.render( scene, camera );
 }())
-		</script>
-	</body>
-</html>
+
+document.addEventListener('DOMContentLoaded', function(event) {
+  document.body.appendChild( renderer.domElement );
+});

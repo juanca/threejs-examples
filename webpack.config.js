@@ -1,5 +1,6 @@
 module.exports = {
   entry: {
+    'multi-color-cube': './multi-color-cube.js',
   },
 
   output: {
