@@ -1,13 +1,31 @@
 var THREE = require('three');
+
+
+/*
+ * Scene
+ */
+
 var scene = new THREE.Scene();
 
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 5;
+
+/*
+ * Camera
+ */
+
+var displayRatio = window.innerWidth / window.innerHeight;
+var camera = new THREE.PerspectiveCamera(75, displayRatio, 1, 1000);
+camera.position.y = 150;
+camera.position.z = 500;
 scene.add(camera);
 
-var geometry = new THREE.BoxGeometry(1, 1, 1);
 
-for (var i = 0; i < geometry.faces.length; i += 1) {
+/*
+ * Cube
+ */
+
+var geometry = new THREE.BoxGeometry(200, 200, 200);
+
+for (var i = 0; i < geometry.faces.length; i += 2) {
   var hex = Math.random() * 0xffffff;
   geometry.faces[i].color.setHex(hex);
 }
@@ -18,10 +36,16 @@ var material = new THREE.MeshBasicMaterial({
 });
 
 cube = new THREE.Mesh(geometry, material);
+cube.position.y = 150;
 scene.add(cube);
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
+
+
+/*
+ * Animation loop
+ */
 
 (function render() {
 	requestAnimationFrame(render);
@@ -32,6 +56,11 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 
 	renderer.render(scene, camera);
 }())
+
+
+/*
+ * Document hook
+ */
 
 document.addEventListener('DOMContentLoaded', function(event) {
   document.body.appendChild(renderer.domElement);
