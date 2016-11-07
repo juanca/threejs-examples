@@ -196,12 +196,12 @@ function updateCube() {
   cube.rotation.y = sceneState.cube.rotation.y;
   cube.rotation.z = sceneState.cube.rotation.z;
 
-	renderer.render(scene, camera);
+  renderer.render(scene, camera);
 }())
 
 
 /*
- * Document Event Handlers
+ * Document event handlers
  */
 
 function onDocumentKeyDown(event) {
