@@ -8,19 +8,19 @@ var REDUX = require('redux');
 
 var scene = new THREE.Scene();
 
-function translate(position, action) {
+function translate(position, payload) {
   return {
-    x: position.x + action.payload.x,
-    y: position.y + action.payload.y,
-    z: position.z + action.payload.z,
+    x: position.x + payload.x,
+    y: position.y + payload.y,
+    z: position.z + payload.z,
   };
 }
 
-function rotate(rotation, action) {
+function rotate(rotation, payload) {
   return {
-    x: rotation.x + action.payload.x,
-    y: rotation.y + action.payload.y,
-    z: rotation.z + action.payload.z,
+    x: rotation.x + payload.x,
+    y: rotation.y + payload.y,
+    z: rotation.z + payload.z,
   };
 }
 
@@ -41,7 +41,7 @@ store = REDUX.createStore(function storeReducer(state, action) {
     case 'TRANSLATE_CUBE':
       return Object.assign({}, state, {
         cube: {
-          position: translate(state.cube.position, action),
+          position: translate(state.cube.position, action.payload),
           rotation: state.cube.rotation,
         }
       });
@@ -49,13 +49,13 @@ store = REDUX.createStore(function storeReducer(state, action) {
       return Object.assign({}, state, {
         cube: {
           position: state.cube.position,
-          rotation: rotate(state.cube.rotation, action),
+          rotation: rotate(state.cube.rotation, action.payload),
         }
       });
     case 'TRANSLATE_CAMERA':
       return Object.assign({}, state, {
         cube: {
-          position: translate(state.camera.position, action),
+          position: translate(state.camera.position, action.payload),
           rotation: state.camera.rotation,
         }
       });
@@ -63,7 +63,7 @@ store = REDUX.createStore(function storeReducer(state, action) {
       return Object.assign({}, state, {
         cube: {
           position: state.camera.position,
-          rotation: rotate(state.camera.rotation, action),
+          rotation: rotate(state.camera.rotation, action.payload),
         }
       });
     case 'KEY_DOWN':
@@ -136,8 +136,49 @@ renderer.setSize(window.innerWidth, window.innerHeight);
  * Animation loop
  */
 
+function updateCube() {
+  var keys = store.getState().keys;
+  var dx, dy, dz;
+
+  if (keys.a && !keys.d) {
+    dx = -0.01;
+  } else if (!keys.a && keys.d) {
+    dx = +0.01;
+  } else {
+    dx = 0;
+  }
+
+  if (keys.w && !keys.s) {
+    dy = +0.01;
+  } else if (!keys.w && keys.s) {
+    dy = -0.01;
+  } else {
+    dy = 0;
+  }
+
+  if (keys.r && !keys.f) {
+    dz = +0.01;
+  } else if (!keys.r && keys.f) {
+    dz = -0.01;
+  } else {
+    dz = 0;
+  }
+
+  if (!dx && !dy && !dz) return;
+
+  store.dispatch({
+    type: 'ROTATE_CUBE',
+    payload: {
+      x: dx,
+      y: dy,
+      z: dz,
+    },
+  });
+}
+
 (function render() {
-	requestAnimationFrame(render);
+  updateCube();
+  requestAnimationFrame(render);
 
   var sceneState = store.getState();
 
