@@ -18,9 +18,9 @@ function translate(position, payload) {
 
 function rotate(rotation, payload) {
   return {
-    x: rotation.x + payload.x,
-    y: rotation.y + payload.y,
-    z: rotation.z + payload.z,
+    x: rotation.x + (payload.x / 100 ),
+    y: rotation.y + (payload.y / 100 ),
+    z: rotation.z + (payload.z / 100 ),
   };
 }
 
@@ -29,7 +29,7 @@ store = REDUX.createStore(function storeReducer(state, action) {
     case '@@redux/INIT':
       return {
         camera: {
-          position: { x: 0, y: 150, z: 500, },
+          position: { x: 0, y: 150, z: 600, },
           rotation: { x: 0, y: 0, z: 0, },
         },
         cube: {
@@ -38,30 +38,16 @@ store = REDUX.createStore(function storeReducer(state, action) {
         },
         keys: {},
       };
-    case 'TRANSLATE_CUBE':
-      return Object.assign({}, state, {
-        cube: {
-          position: translate(state.cube.position, action.payload),
-          rotation: state.cube.rotation,
-        }
-      });
-    case 'ROTATE_CUBE':
-      return Object.assign({}, state, {
-        cube: {
-          position: state.cube.position,
-          rotation: rotate(state.cube.rotation, action.payload),
-        }
-      });
     case 'TRANSLATE_CAMERA':
       return Object.assign({}, state, {
-        cube: {
+        camera: {
           position: translate(state.camera.position, action.payload),
           rotation: state.camera.rotation,
         }
       });
     case 'ROTATE_CAMERA':
       return Object.assign({}, state, {
-        cube: {
+        camera: {
           position: state.camera.position,
           rotation: rotate(state.camera.rotation, action.payload),
         }
@@ -136,48 +122,83 @@ renderer.setSize(window.innerWidth, window.innerHeight);
  * Animation loop
  */
 
-function updateCube() {
+function updateCamera() {
   var keys = store.getState().keys;
-  var dx, dy, dz;
+  var dx, dy, dz, dx0, dy0, dz0;
 
   if (keys.a && !keys.d) {
-    dx = -0.01;
+    dx = -1;
   } else if (!keys.a && keys.d) {
-    dx = +0.01;
+    dx = +1;
   } else {
     dx = 0;
   }
 
   if (keys.w && !keys.s) {
-    dy = +0.01;
+    dy = +1;
   } else if (!keys.w && keys.s) {
-    dy = -0.01;
+    dy = -1;
   } else {
     dy = 0;
   }
 
   if (keys.r && !keys.f) {
-    dz = +0.01;
+    dz = +1;
   } else if (!keys.r && keys.f) {
-    dz = -0.01;
+    dz = -1;
   } else {
     dz = 0;
   }
 
-  if (!dx && !dy && !dz) return;
+  if (dx || dy || dz) {
+    store.dispatch({
+      type: 'TRANSLATE_CAMERA',
+      payload: {
+        x: dx,
+        y: dy,
+        z: dz,
+      },
+    });
+  }
 
-  store.dispatch({
-    type: 'ROTATE_CUBE',
-    payload: {
-      x: dx,
-      y: dy,
-      z: dz,
-    },
-  });
+  if (keys.j && !keys.l) {
+    dx0 = -1;
+  } else if (!keys.j && keys.l) {
+    dx0 = +1;
+  } else {
+    dx0 = 0;
+  }
+
+  if (keys.i && !keys.k) {
+    dy0 = +1;
+  } else if (!keys.i && keys.k) {
+    dy0 = -1;
+  } else {
+    dy0 = 0;
+  }
+
+  if (keys.y && !keys.h) {
+    dz0 = +1;
+  } else if (!keys.y && keys.h) {
+    dz0 = -1;
+  } else {
+    dz0 = 0;
+  }
+
+  if (dx0 || dy0 || dz0) {
+    store.dispatch({
+      type: 'ROTATE_CAMERA',
+      payload: {
+        x: dx0,
+        y: dy0,
+        z: dz0,
+      },
+    });
+  }
 }
 
 (function render() {
-  updateCube();
+  updateCamera();
   requestAnimationFrame(render);
 
   var sceneState = store.getState();
@@ -188,13 +209,6 @@ function updateCube() {
   camera.rotation.x = sceneState.camera.rotation.x;
   camera.rotation.y = sceneState.camera.rotation.y;
   camera.rotation.z = sceneState.camera.rotation.z;
-
-  cube.position.x = sceneState.cube.position.x;
-  cube.position.y = sceneState.cube.position.y;
-  cube.position.z = sceneState.cube.position.z;
-  cube.rotation.x = sceneState.cube.rotation.x;
-  cube.rotation.y = sceneState.cube.rotation.y;
-  cube.rotation.z = sceneState.cube.rotation.z;
 
   renderer.render(scene, camera);
 }())
